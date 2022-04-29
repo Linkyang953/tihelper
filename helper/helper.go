@@ -1,4 +1,4 @@
-// Copyright Calvin Yang.
+// Copyright 2016 TiKV Project Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,12 +22,14 @@ import (
 	"io"
 	"os"
 	"strings"
+	"tihelper/helper/command"
 )
 
 func init() {
 	cobra.EnablePrefixMatching = true
 }
 
+// Modified by Calvin 20220429
 func GetRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "TiHelper",
@@ -36,6 +38,9 @@ func GetRootCmd() *cobra.Command {
 
 	rootCmd.PersistentFlags().StringP("pd", "u", "http://127.0.0.1:2379", "address of pd")
 
+	rootCmd.AddCommand(
+		command.NewClusterCommand(),
+	)
 	rootCmd.Flags().ParseErrorsWhitelist.UnknownFlags = true
 	rootCmd.SilenceErrors = true
 
@@ -46,17 +51,18 @@ func GetRootCmd() *cobra.Command {
 	return rootCmd
 }
 
+// Modified by Calvin 20220429
 func MainStart(args []string) {
 	rootCmd := GetRootCmd()
 	rootCmd.Flags().BoolP("interact", "i", false, "Run tihelper with readline.")
 	rootCmd.Flags().BoolP("version", "V", false, "Print version information and exit.")
 
 	rootCmd.Run = func(cmd *cobra.Command, args []string) {
-		if v, err := cmd.Flags().GetBool("version"); err == nil && v {
+		if flag, err := cmd.Flags().GetBool("version"); err == nil && flag {
 			fmt.Println("Release Version:", "V1.0.0")
 			return
 		}
-		if v, err := cmd.Flags().GetBool("interact"); err == nil && v {
+		if flag, err := cmd.Flags().GetBool("interact"); err == nil && flag {
 			readlineCompleter := readline.NewPrefixCompleter(genCompleter(cmd)...)
 			loop(cmd.PersistentFlags(), readlineCompleter)
 		}

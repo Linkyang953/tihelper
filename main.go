@@ -1,4 +1,4 @@
-// Copyright Calvin Yang.
+// Copyright 2016 TiKV Project Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -10,6 +10,8 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+
 package main
 
 import (
@@ -23,6 +25,11 @@ import (
 )
 
 func main() {
+	pdAddr := os.Getenv("PD_ADDR")
+	if pdAddr != "" {
+		os.Args = append(os.Args, "-u", pdAddr)
+	}
+
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc,
 		syscall.SIGHUP,
@@ -52,5 +59,6 @@ func main() {
 		input = strings.Split(strings.TrimSpace(string(b[:])), " ")
 	}
 
+	//Modied by Calvin 20220429
 	helper.MainStart(append(os.Args[1:], input...))
 }
